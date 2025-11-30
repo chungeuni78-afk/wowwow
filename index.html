@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>가중치 룰렛</title>
+<style>
+    body {
+        background: #f6f7fb;
+        font-family: 'Pretendard', sans-serif;
+        text-align: center;
+        padding-top: 40px;
+    }
+    h1 {
+        font-size: 32px;
+        margin-bottom: 20px;
+    }
+    #wheel {
+        width: 350px;
+        height: 350px;
+        border-radius: 50%;
+        border: 10px solid #333;
+        margin: auto;
+        position: relative;
+        overflow: hidden;
+        transform: rotate(0deg);
+        transition: transform 4s cubic-bezier(0.25, 0.1, 0.1, 1);
+    }
+    .slice {
+        width: 50%;
+        height: 50%;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform-origin: 0% 0%;
+        background: #ff7675;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    #pointer {
+        width: 0;
+        height: 0;
+        border-left: 20px solid transparent;
+        border-right: 20px solid transparent;
+        border-bottom: 30px solid #ff2d55;
+        margin: auto;
+        margin-bottom: 20px;
+    }
+    #spinBtn {
+        padding: 13px 25px;
+        font-size: 20px;
+        background: #0984e3;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+    #spinBtn:active {
+        transform: scale(0.97);
+    }
+    #result {
+        font-size: 28px;
+        margin-top: 20px;
+        font-weight: 700;
+    }
+</style>
+</head>
+<body>
+
+<h1>가중치 룰렛</h1>
+<div id="pointer"></div>
+<div id="wheel"></div>
+
+<button id="spinBtn" onclick="spin()">룰렛 돌리기</button>
+
+<div id="result"></div>
+
+<script>
+/* ===========================
+      🎯 설정 (여기만 수정하면 됨)
+=========================== */
+
+const entries = [
+    { name: "강율", weight: 100 }, // 특정 사람 확률 매우 높게
+    { name: "우민", weight: 2 },
+    { name: "주연", weight: 2 },
+    { name: "건호", weight: 2 },
+    { name: "효준", weight: 2 }
+];
+
+/* ===========================
+      룰렛 UI 생성
+=========================== */
+
+const wheel = document.getElementById("wheel");
+const total = entries.length;
+const angle = 360 / total;
+
+entries.forEach((item, i) => {
+    const slice = document.createElement("div");
+    slice.className = "slice";
+    const rotate = angle * i;
+    slice.style.transform = `rotate(${rotate}deg) skewY(${90 - angle}deg)`;
+    slice.style.background = i % 2 === 0 ? "#ff7675" : "#74b9ff";
+    slice.innerHTML = `<div style="transform: skewY(${-(90 - angle)}deg) rotate(${angle / 2}deg);">${item.name}</div>`;
+    wheel.appendChild(slice);
+});
+
+/* ===========================
+        스핀 기능
+=========================== */
+
+function weightedRandom() {
+    let list = [];
+    entries.forEach(e => {
+        for (let i = 0; i < e.weight; i++) list.push(e.name);
+    });
+    return list[Math.floor(Math.random() * list.length)];
+}
+
+let currentRotate = 0;
+
+function spin() {
+    const selected = weightedRandom();
+
+    const index = entries.findIndex(e => e.name === selected);
+    const sliceAngle = 360 / entries.length;
+
+    // 룰렛 회전 목표
+    const targetAngle = 360 * 5 + (360 - (index * sliceAngle) - sliceAngle / 2);
+
+    currentRotate += targetAngle;
+
+    wheel.style.transform = `rotate(${currentRotate}deg)`;
+
+    setTimeout(() => {
+        document.getElementById("result").innerText = `결과: ${selected}`;
+    }, 4000);
+}
+</script>
+
+</body>
+</html>
